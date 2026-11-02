@@ -230,3 +230,81 @@ fn test_site_check_blank_canvas_and_sheet() {
     write_contact_sheet(&reports, tmp.path()).unwrap();
     assert!(tmp.path().join("sheet.jpg").exists());
 }
+
+#[test]
+fn test_installer_in_clean_home() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let tmp_home = tempfile::tempdir().unwrap();
+    std::fs::create_dir_all(tmp_home.path().join(".claude")).unwrap();
+    std::fs::create_dir_all(tmp_home.path().join(".codex")).unwrap();
+
+    let status = std::process::Command::new("bash")
+        .arg(root.join("install.sh"))
+        .env("HOME", tmp_home.path())
+        .status()
+        .expect("run install.sh");
+    assert!(status.success(), "install.sh should succeed in clean HOME");
+
+    assert!(
+        tmp_home
+            .path()
+            .join(".claude/skills/threejs-scene")
+            .symlink_metadata()
+            .is_ok(),
+        "expected symlink ~/.claude/skills/threejs-scene"
+    );
+    assert!(
+        tmp_home
+            .path()
+            .join(".codex/skills/frame-capture")
+            .symlink_metadata()
+            .is_ok(),
+        "expected symlink ~/.codex/skills/frame-capture"
+    );
+
+    let uninst = std::process::Command::new("bash")
+        .arg(root.join("install.sh"))
+        .args(["--uninstall", "--claude", "--codex"])
+        .env("HOME", tmp_home.path())
+        .status()
+        .expect("run install.sh --uninstall");
+    assert!(uninst.success(), "install.sh --uninstall should succeed");
+    assert!(
+        !tmp_home
+            .path()
+            .join(".claude/skills/threejs-scene")
+            .exists(),
+        "expected ~/.claude/skills/threejs-scene to be removed after --uninstall"
+    );
+}
+
+#[test]
+fn test_cursor_rig_dot_eyes_and_template_tracker() {
+    use open_3d_skills::build_rig::{DotEyesTracker, TemplateTracker};
+
+    // Create a 200x200 face canvas with two dark round dot eyes inside the head box (20, 20, 160, 160)
+    let mut face = RgbImage::from_pixel(200, 200, Rgb([215, 165, 140]));
+    for (ex, ey) in [(88i32, 80i32), (112i32, 80i32)] {
+        for dy in -3..=3 {
+            for dx in -3..=3 {
+                if dx * dx + dy * dy <= 11 {
+                    face.put_pixel((ex + dx) as u32, (ey + dy) as u32, Rgb([20, 20, 20]));
+                }
+            }
+        }
+    }
+
+    let tracker = DotEyesTracker::new((20, 20, 160, 160), (50, 120), 70);
+    let (mid, eyes) = tracker
+        .track(face.as_raw(), 200, 200)
+        .expect("DotEyesTracker should detect both dark round eyes");
+    assert_eq!(eyes.len(), 2);
+    assert!((mid.0 - 100.0).abs() < 2.0 && (mid.1 - 80.0).abs() < 2.0);
+
+    let mut tpl = TemplateTracker::new((100.0, 80.0), 160);
+    let p0 = tpl.track(face.as_raw(), 200, 200).unwrap();
+    assert_eq!(p0, (100.0, 80.0));
+    let p1 = tpl.track(face.as_raw(), 200, 200).unwrap();
+    assert!((p1.0 - 100.0).abs() <= 1.0 && (p1.1 - 80.0).abs() <= 1.0);
+}
+

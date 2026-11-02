@@ -258,6 +258,11 @@ pub fn verify_repo(root: &Path) -> Result<(usize, usize, usize)> {
 
     let files = walk_files(&skills_dir);
     let mut script_count = 0usize;
+    let has_node = std::process::Command::new("node")
+        .arg("--version")
+        .output()
+        .is_ok_and(|o| o.status.success());
+
     for f in &files {
         let ext = f.extension().and_then(|e| e.to_str()).unwrap_or("");
         if matches!(ext, "rs" | "js" | "mjs") {
@@ -265,6 +270,18 @@ pub fn verify_repo(root: &Path) -> Result<(usize, usize, usize)> {
             let src = std::fs::read_to_string(f)?;
             if src.trim().is_empty() {
                 errors.push(format!("{}: empty script file", f.display()));
+            }
+            if matches!(ext, "js" | "mjs") && has_node {
+                let out = std::process::Command::new("node")
+                    .arg("--check")
+                    .arg(f)
+                    .output()?;
+                if !out.status.success() {
+                    let rel_f = f.strip_prefix(root).unwrap_or(f);
+                    let stderr = String::from_utf8_lossy(&out.stderr);
+                    let summary: Vec<&str> = stderr.lines().take(3).collect();
+                    errors.push(format!("{}: {}", rel_f.display(), summary.join(" ")));
+                }
             }
         }
     }

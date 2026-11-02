@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Build and verify all skills, manifests, and Rust tools
+      - name: Validate skill frontmatter, manifests, and scripts (Node + Rust)
         run: |
+          node tests/check.mjs
           cargo test
           cargo run -- verify
       - name: Installer works in a clean home
