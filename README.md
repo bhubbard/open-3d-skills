@@ -12,7 +12,7 @@
   &nbsp;
   <img src="https://img.shields.io/badge/agents-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20Cursor%20%C2%B7%20Gemini%20%C2%B7%20OpenCode-24292f?style=flat" alt="Works with Claude Code, Codex, Cursor, Gemini CLI and OpenCode" />
   &nbsp;
-  <a href="https://github.com/Moh4696/open-3d-skills/actions/workflows/check.yml"><img src="https://github.com/Moh4696/open-3d-skills/actions/workflows/check.yml/badge.svg" alt="Checks" /></a>
+  <a href="https://github.com/bhubbard/open-3d-skills/actions/workflows/check.yml"><img src="https://github.com/bhubbard/open-3d-skills/actions/workflows/check.yml/badge.svg" alt="Checks" /></a>
 </p>
 
 **Open 3D Skills** are eight agent skills for building 3D and animated websites: real-time three.js scenes built from code, scroll-scrubbed films, transparent video that plays in Safari, characters that follow the cursor, exploded views of machines, and the AI image and video work behind them. They also teach the agent to check its work in real browsers and to record it as a smooth 60 fps video.
@@ -39,14 +39,14 @@ Every technique here was used to build a real site first, and every script was r
 ## Install
 
 ```bash
-npx skills add Moh4696/open-3d-skills
+npx skills add bhubbard/open-3d-skills
 ```
 
 That installs with the [`npx skills`](https://github.com/vercel-labs/skills) CLI, the open installer for agent skills. It asks which of the eight skills you want, which agents to install them for (Claude Code, Codex, Cursor, Gemini CLI, OpenCode, Antigravity and dozens more) and whether they are for this project or every project. Start a new agent session afterwards.
 
 ```bash
-npx skills add Moh4696/open-3d-skills -g -y                       # all skills, all your agents, every project, no questions
-npx skills add Moh4696/open-3d-skills --skill threejs-scene       # just one skill
+npx skills add bhubbard/open-3d-skills -g -y                       # all skills, all your agents, every project, no questions
+npx skills add bhubbard/open-3d-skills --skill threejs-scene       # just one skill
 npx skills update                                                  # pull new versions later
 ```
 
@@ -58,7 +58,7 @@ npx skills update                                                  # pull new ve
 Inside Claude Code:
 
 ```
-/plugin marketplace add Moh4696/open-3d-skills
+/plugin marketplace add bhubbard/open-3d-skills
 /plugin install open-3d-skills@open-3d-skills
 ```
 
@@ -70,7 +70,7 @@ The skills are namespaced as `open-3d-skills:threejs-scene` and so on, so they n
 <summary>Codex plugin</summary>
 
 ```bash
-codex plugin marketplace add Moh4696/open-3d-skills
+codex plugin marketplace add bhubbard/open-3d-skills
 codex plugin add open-3d-skills@open-3d-skills
 ```
 
@@ -89,7 +89,7 @@ The one-line installer links the skills into `~/.cursor/skills`, where Cursor fi
 <summary>Gemini CLI</summary>
 
 ```bash
-gemini extensions install https://github.com/Moh4696/open-3d-skills
+gemini extensions install https://github.com/bhubbard/open-3d-skills
 ```
 
 `gemini extensions update` pulls new versions.
@@ -100,13 +100,13 @@ gemini extensions install https://github.com/Moh4696/open-3d-skills
 <summary>Without Node: the shell installer</summary>
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Moh4696/open-3d-skills/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bhubbard/open-3d-skills/main/install.sh | bash
 ```
 
 It installs all eight skills for every coding agent it finds (Claude Code, Codex, Cursor, Gemini CLI, and OpenCode, which also reads Claude Code's folder). It clones the repo to `~/.open-3d-skills` and links the skills from there, so running it again updates them. From a clone you can choose:
 
 ```bash
-git clone https://github.com/Moh4696/open-3d-skills && cd open-3d-skills
+git clone https://github.com/bhubbard/open-3d-skills && cd open-3d-skills
 ./install.sh --claude --codex          # only these agents (also --cursor --gemini --opencode --agents)
 ./install.sh --dir path/to/skills      # any agent that reads a skills folder
 ./install.sh threejs-scene frame-capture   # only some skills
@@ -162,7 +162,7 @@ Code-built scenes are small, sharp at any size, free of licensing questions and 
 Yes. The modules are plain ES modules and the techniques are framework-free.
 
 **Can I install just one skill?**
-Yes: `npx skills add Moh4696/open-3d-skills --skill scroll-film`. Skills mention each other by name where they work together, but each one works alone.
+Yes: `npx skills add bhubbard/open-3d-skills --skill scroll-film`. Skills mention each other by name where they work together, but each one works alone.
 
 ## Works well with
 

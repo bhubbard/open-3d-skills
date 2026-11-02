@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Install Open 3D Skills for every coding agent on this machine, without Node.
-# (With Node 22.20+, `npx skills add Moh4696/open-3d-skills` does the same.)
+# (With Node 22.20+, `npx skills add bhubbard/open-3d-skills` does the same.)
 #
-#   curl -fsSL https://raw.githubusercontent.com/Moh4696/open-3d-skills/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/bhubbard/open-3d-skills/main/install.sh | bash
 #
 # Run from the internet, it clones the repo to ~/.open-3d-skills (or updates it) and links the
 # skills from there, so `bash ~/.open-3d-skills/install.sh` again (or a git pull) updates them.
@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-REPO_URL="https://github.com/Moh4696/open-3d-skills.git"
+REPO_URL="https://github.com/bhubbard/open-3d-skills.git"
 HOME_CLONE="${OPEN3D_HOME:-$HOME/.open-3d-skills}"
 MARK=".open-3d-skills"
 
