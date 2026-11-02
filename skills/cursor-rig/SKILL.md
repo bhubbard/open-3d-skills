@@ -11,10 +11,10 @@ A character who looks at you is the strongest hero a page can have. Building one
 
 | File | What it does |
 | --- | --- |
-| `scripts/build_rig.py` | Turns head-turn clips into `row_N.webp` pose strips, `plate.webp` and `rig.json` |
+| `scripts/build_rig.rs` | Turns head-turn clips into `row_N.webp` pose strips, `plate.webp` and `rig.json` |
 | `assets/rig.js` | Loads the rig, places a canvas over the head, follows the pointer with a spring, blinks, glances about when idle |
 
-Needs Python 3.9+, `pip install numpy opencv-python-headless`, ffmpeg, an image-editing model and an image-to-video model that accepts start and end frames (see `motion-assets`).
+Needs Rust (`cargo`), ffmpeg, an image-editing model and an image-to-video model that accepts start and end frames (see `motion-assets`).
 
 ## Pipeline
 
@@ -43,7 +43,7 @@ If two rows differ a lot (the model redrew the hair in the down keyframes, say),
 ### 4. Build
 
 ```bash
-python3 scripts/build_rig.py clips/ site/rig --box 300,40,840,800 --track dots --debug work/rig-cells
+cargo run --release --bin build_rig -- clips/ site/rig --box-rect 300,40,840,800 --track dots --debug work/rig-cells
 ```
 
 - `--box x,y,w,h` (plate pixels): everything the head ever covers, hair included, with a little neck.

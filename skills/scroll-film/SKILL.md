@@ -12,11 +12,11 @@ A scroll film pins a canvas while the visitor scrolls through a tall section, an
 | File | What it does |
 | --- | --- |
 | `assets/scroll-film.js` | The engine: pinned canvas, progress-to-frame keys with holds, frame sequences or video, smoothing, reduced motion |
-| `scripts/prep.py frames` | Joins clips into one numbered WebP sequence and a manifest |
-| `scripts/prep.py video` | Joins clips into one MP4 encoded for instant seeking |
-| `scripts/prep.py seams` | Scores every join between clips and fails on a visible jump |
+| `scripts/prep.rs frames` | Joins clips into one numbered WebP sequence and a manifest |
+| `scripts/prep.rs video` | Joins clips into one MP4 encoded for instant seeking |
+| `scripts/prep.rs seams` | Scores every join between clips and fails on a visible jump |
 
-Needs ffmpeg and ffprobe, Python 3.9+ and `pip install pillow numpy`. Making the clips is `motion-assets`; transparent subjects are `alpha-cutout`; checking the result is `site-check` and `frame-capture`.
+Needs ffmpeg and ffprobe, and Rust (`cargo`). Making the clips is `motion-assets`; transparent subjects are `alpha-cutout`; checking the result is `site-check` and `frame-capture`.
 
 ## Plan before generating anything
 
@@ -29,7 +29,7 @@ Needs ffmpeg and ffprobe, Python 3.9+ and `pip install pillow numpy`. Making the
 1. **Generate the legs** with start and end frames from step 2. Check every join:
 
    ```bash
-   python3 scripts/prep.py seams legs/01.mp4 legs/02.mp4 legs/03.mp4
+   cargo run --release --bin prep -- seams legs/01.mp4 legs/02.mp4 legs/03.mp4
    ```
 
    Under 4 is invisible; over 10 is a jump. Fix a bad seam by regenerating that leg anchored on the exact last frame of the previous one (extract it with ffmpeg rather than reusing the still: models shift colour and framing slightly).
@@ -43,9 +43,9 @@ Needs ffmpeg and ffprobe, Python 3.9+ and `pip install pillow numpy`. Making the
    | Good for | Up to roughly 300 frames | Long films where size matters more than precision |
 
    ```bash
-   python3 scripts/prep.py frames legs/*.mp4 site/film/lg --width 1600 --fps 24
-   python3 scripts/prep.py frames legs/*.mp4 site/film/sm --width 900 --fps 24 --quality 72
-   python3 scripts/prep.py video legs/*.mp4 site/film.mp4 --width 1920 --gop 4
+   cargo run --release --bin prep -- frames legs/*.mp4 site/film/lg --width 1600 --fps 24
+   cargo run --release --bin prep -- frames legs/*.mp4 site/film/sm --width 900 --fps 24 --quality 72
+   cargo run --release --bin prep -- video legs/*.mp4 site/film.mp4 --width 1920 --gop 4
    ```
 
    `frames` drops each later leg's first frame, which duplicates the previous leg's last. `video` uses a 4-frame GOP and no B-frames: a normal export with a 250-frame GOP makes every seek decode hundreds of frames, and scrubbing stutters.
@@ -93,7 +93,7 @@ Phones also get the small frame set and should stay under about 8 MB for the who
 - Put frame 0 in the HTML as an `<img>` (or as the canvas background) so the first paint is the film, not a blank box.
 - The engine loads frame 0, then the last frame, then a coarse-to-fine spread (every 64th, every 32nd, and so on), six at a time. A visitor who scrolls fast always lands near a decoded frame and sees it sharpen.
 - Video mode fetches the whole file into a blob before playing, so seeks never wait on the network.
-- Serve from a host that answers Range requests. `python3 -m http.server` does not, and videos it serves cannot seek; locally, use the `frame-capture` skill's serve.py.
+- Serve from a host that answers Range requests. `python3 -m http.server` does not, and videos it serves cannot seek; locally, use the `frame-capture` skill's `serve` binary.
 
 ## Reduced motion
 
@@ -101,7 +101,7 @@ With `prefers-reduced-motion: reduce`, the engine steps between the key frames (
 
 ## Check
 
-- Record a scroll-through at low frame rate to judge pacing in seconds, with the `frame-capture` skill: `record.py URL check.mp4 --fps 8 --seconds 20 --scroll "0:0 18:100%"`.
+- Record a scroll-through at low frame rate to judge pacing in seconds, with the `frame-capture` skill: `cargo run --release --bin record -- URL check.mp4 --fps 8 --seconds 20 --scroll "0:0 18:100%"`.
 - Scrub fast up and down: nothing blank, no flash at a seam, the pin releases cleanly at the end.
 - Load on a throttled connection: first paint shows frame 0.
 - Check a phone viewport and a short laptop viewport (1280x720): captions must not cover the subject.

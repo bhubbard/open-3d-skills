@@ -1,5 +1,5 @@
+/target/
 node_modules/
-.DS_Store
 __pycache__/
 *.pyc
-shots/
+.DS_Store

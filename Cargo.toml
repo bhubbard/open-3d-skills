@@ -1,0 +1,69 @@
+[package]
+name = "open-3d-skills"
+version = "0.1.0"
+edition = "2021"
+default-run = "open-3d-skills"
+description = "Eight agent skills and native Rust tools for building, keying, rigging, checking, and recording 3D and animated websites."
+license = "MIT"
+repository = "https://github.com/bhubbard/open-3d-skills"
+
+[lib]
+name = "open_3d_skills"
+path = "src/lib.rs"
+
+[[bin]]
+name = "open-3d-skills"
+path = "src/main.rs"
+
+[[bin]]
+name = "plate"
+path = "skills/alpha-cutout/scripts/plate.rs"
+
+[[bin]]
+name = "key"
+path = "skills/alpha-cutout/scripts/key.rs"
+
+[[bin]]
+name = "build_rig"
+path = "skills/cursor-rig/scripts/build_rig.rs"
+
+[[bin]]
+name = "record"
+path = "skills/frame-capture/scripts/record.rs"
+
+[[bin]]
+name = "compare"
+path = "skills/frame-capture/scripts/compare.rs"
+
+[[bin]]
+name = "serve"
+path = "skills/frame-capture/scripts/serve.rs"
+
+[[bin]]
+name = "loop_check"
+path = "skills/motion-assets/scripts/loop_check.rs"
+
+[[bin]]
+name = "paste_back"
+path = "skills/motion-assets/scripts/paste_back.rs"
+
+[[bin]]
+name = "prep"
+path = "skills/scroll-film/scripts/prep.rs"
+
+[[bin]]
+name = "check"
+path = "skills/site-check/scripts/check.rs"
+
+[[bin]]
+name = "site_serve"
+path = "skills/site-check/scripts/serve.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.6", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+regex = "1.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tempfile = "3.27"

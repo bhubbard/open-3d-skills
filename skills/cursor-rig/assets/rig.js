@@ -1,7 +1,7 @@
 // Cursor-following head rig. The page shows a still image (the plate, or a wider artwork the
 // plate sits inside); a <canvas> placed exactly over the head paints one cell from a grid of
 // pre-rendered head poses (rows = pitch, up -> down; columns = yaw, image-left -> image-right),
-// built by scripts/build_rig.py.
+// built by scripts/build_rig.rs.
 //
 //   <figure class="rig" style="position: relative">
 //     <img src="rig/plate.webp" alt="...">            <!-- or your wider hero artwork -->

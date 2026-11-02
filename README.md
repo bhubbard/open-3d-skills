@@ -140,11 +140,12 @@ Each skill is a plain folder with a `SKILL.md`, so any agent that supports Agent
 
 ## Requirements
 
-The skills are instructions; their scripts need:
+The skills are instructions; their native Rust CLI tools (`open-3d-skills` and per-skill binaries in `skills/*/scripts/*.rs`) need:
 
-- **Node 22.20+** for `npx skills` and the repo's own checks. The browser code has no build step.
-- **Python 3.9+** with `pip install -r requirements.txt` (Playwright, Pillow, NumPy, OpenCV), then `python3 -m playwright install chromium webkit`.
-- **ffmpeg** on your PATH.
+- **Rust 1.80+ (`cargo`)** to build and run the native CLI tools (`cargo build --release` or `cargo test`). The browser ES modules have no build step.
+- **Node 22.20+** (optional) if installing via `npx skills`.
+- **ffmpeg** and **ffprobe** on your PATH.
+- **Chromium / WebKit** on your PATH (or `CHROME_PATH`) for `site-check` and `frame-capture`.
 - An image and video generation service (any) for `motion-assets`, `alpha-cutout`, `cursor-rig` and `scroll-film`. `threejs-scene`, `exploded-view`, `site-check` and `frame-capture` need none.
 
 Nothing is installed behind your back and no API keys are stored by the skills.

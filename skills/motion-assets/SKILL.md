@@ -11,12 +11,12 @@ Generated assets make or break an animated site, and they cost real money per at
 
 | Script | What it does |
 | --- | --- |
-| `scripts/loop_check.py` | Scores how well a clip loops, finds the best loop point, trims and cross-fades it |
-| `scripts/paste_back.py` | Puts the original pixels back into an outpainted image (outpainting re-renders the middle too) |
+| `scripts/loop_check.rs` | Scores how well a clip loops, finds the best loop point, trims and cross-fades it |
+| `scripts/paste_back.rs` | Puts the original pixels back into an outpainted image (outpainting re-renders the middle too) |
 
-Related: `alpha-cutout` (clips that need transparency), `scroll-film` (`prep.py seams` scores joins between chained clips), `cursor-rig` (head-turn clips).
+Related: `alpha-cutout` (clips that need transparency), `scroll-film` (`prep seams` scores joins between chained clips), `cursor-rig` (head-turn clips).
 
-Needs Python 3.9+, `pip install numpy opencv-python-headless`, ffmpeg.
+Needs Rust (`cargo`) and ffmpeg.
 
 ## Before spending anything
 
@@ -34,10 +34,10 @@ Get a yes, then generate.
 | You need | The model must support | Notes |
 | --- | --- | --- |
 | A clip that ends on a planned frame | Start frame **and** end frame | Essential for chained scroll films, head turns and loops |
-| A seamless loop | Start = end frame | Then check with `loop_check.py`; models rarely land exactly |
+| A seamless loop | Start = end frame | Then check with `loop_check`; models rarely land exactly |
 | A pose or expression change on the same character | Image editing that holds framing | Compare to the source at full size: only the edited part may change |
 | A transparent subject | Nothing special: shoot on a key plate | See `alpha-cutout`. A few image models return real alpha; video models do not |
-| Wider artwork | Outpainting | It re-renders the original area: paste it back (`paste_back.py`) |
+| Wider artwork | Outpainting | It re-renders the original area: paste it back (`paste_back`) |
 | Sharpness | Native resolution | Never upscale a clip and call it 1080p; encode what the model returned |
 
 Observed while building with these models in 2026 (check current docs; behaviour changes):
@@ -59,22 +59,22 @@ Observed while building with these models in 2026 (check current docs; behaviour
 
 1. Stills: hero, then keyframes (every start and end frame of every clip), then supporting images. Review them side by side before any video.
 2. Clips, each anchored on approved stills. For chains, anchor each clip's start on the **exact extracted last frame** of the previous clip, not on the still, so colour drift does not accumulate as a jump.
-3. Check every clip: `loop_check.py` for loops, `scroll-film/scripts/prep.py seams` for chains, the whole clip by eye for detail drift.
+3. Check every clip: `loop_check` for loops, `scroll-film/scripts/prep.rs seams` for chains, the whole clip by eye for detail drift.
 
 Clip prompts that behave:
 
 - Name the camera: "locked-off camera" or the exact move ("slow push in, no rotation").
 - Name what must not move: "the body, background and lighting stay perfectly still".
-- For loops: "constant, even motion; no slowing down at the end". Models ease to a stop by default, which hitches every loop. `loop_check.py` reports it.
+- For loops: "constant, even motion; no slowing down at the end". Models ease to a stop by default, which hitches every loop. `loop_check` reports it.
 - Repeat the plate colour for anything that will be keyed.
 
 ## Fixing instead of regenerating
 
 | Problem | Fix |
 | --- | --- |
-| Loop jumps slightly | `loop_check.py clip.mp4 --fix loop.mp4` cuts at the best loop point; add `--blend 6` to cross-fade small drift |
+| Loop jumps slightly | `cargo run --release --bin loop_check -- clip.mp4 --fix loop.mp4` cuts at the best loop point; add `--blend 6` to cross-fade small drift |
 | Loop jumps a lot (over ~8) | Regenerate with start = end frame and the constant-motion wording |
-| Outpaint softened the subject | `paste_back.py original.png extended.png out.png` |
+| Outpaint softened the subject | `cargo run --release --bin paste_back -- original.png extended.png out.png` |
 | Seam between chained clips | Regenerate the later clip from the extracted last frame of the earlier one |
 | One detail changes colour mid-clip | Recolour that hue in post if it is isolated; otherwise regenerate |
 

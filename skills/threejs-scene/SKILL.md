@@ -92,7 +92,7 @@ Budget for a laptop GPU at 1440x900: under 10 ms a frame, under 300 draw calls, 
 `?record=1` hides the UI and runs a scripted tour from `window.__recordFrame(t)`, timed on the page clock. Anything delayed must use `later(secs, fn)` from `main.js`, not `setTimeout`. Record with the `frame-capture` skill (`<frame-capture>` is where that skill is installed):
 
 ```bash
-python3 <frame-capture>/scripts/record.py "http://127.0.0.1:8000/?record=1" tour.mp4 --seconds 20 --ready "window.__ready === true"
+cargo run --release --bin record -- "http://127.0.0.1:8000/?record=1" tour.mp4 --seconds 20 --ready "window.__ready === true"
 ```
 
 ## Before calling it done

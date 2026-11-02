@@ -9,10 +9,10 @@ An animated page can look perfect in the one browser tab it was built in and fai
 
 ## Tool
 
-`scripts/check.py` drives headless Chromium (on the real GPU) and WebKit through Playwright.
+`scripts/check.rs` drives headless Chromium (on the real GPU) and WebKit.
 
 ```bash
-python3 scripts/check.py http://127.0.0.1:8000/ --out shots \
+cargo run --release --bin check -- http://127.0.0.1:8000/ --out shots \
   --widths 1440,768,390 --browser both \
   --query "view=front" "view=aerial&light=night" \
   --scroll-steps 6 --ready "window.__ready === true"
@@ -29,7 +29,7 @@ python3 scripts/check.py http://127.0.0.1:8000/ --out shots \
 
 Output: one PNG per shot, `report.json`, and `sheet.jpg` with every shot labelled; problem shots are labelled in red. The script exits 1 if any shot had a page error, a failed or 4xx/5xx request, a blank canvas or horizontal overflow. Each shot also gets a reduced-motion pass at the widest width.
 
-Needs Python 3.9+, `pip install playwright pillow`, and `python3 -m playwright install chromium webkit`. Serve the page over HTTP (ES modules and video seeking need it) with `scripts/serve.py DIR --port 8000`; it answers Range requests, which `python3 -m http.server` does not.
+Needs Rust (`cargo`) and a headless Chromium/WebKit browser. Serve the page over HTTP (ES modules and video seeking need it) with `scripts/serve.rs DIR --port 8000`; it answers Range requests, which `python3 -m http.server` does not.
 
 ## Reading the report
 
@@ -52,7 +52,7 @@ The numbers catch breakage; your eyes catch ugliness. Open `sheet.jpg` and check
 
 Run these by hand or with `frame-capture` at a low frame rate (`--fps 8`), which is fast and exact:
 
-- **Seams and loops.** Scrub every scroll film up and down fast; watch each join and the wrap of every loop. `scroll-film/scripts/prep.py seams` scores joins numerically.
+- **Seams and loops.** Scrub every scroll film up and down fast; watch each join and the wrap of every loop. `scroll-film/scripts/prep.rs seams` scores joins numerically.
 - **Pins release.** At the end of every pinned section the page must scroll on without a jump.
 - **Long sessions.** Leave the page running for a minute, switch light presets back and forth, resize the window a few times; frame time should not creep up (leaked geometries and textures show in `report.json` as rising counts).
 - **Throttled first load.** With network throttling, the first paint should be the hero's poster or first frame, not a blank page.

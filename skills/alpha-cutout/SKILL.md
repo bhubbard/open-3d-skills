@@ -11,11 +11,11 @@ Image-to-video models never return alpha. A character that should stand between 
 
 | File | What it does |
 | --- | --- |
-| `scripts/plate.py` | Places a cut-out subject on a key plate with headroom; picks the key colour the subject clashes with least |
-| `scripts/key.py` | Keys a clip or still into stacked MP4, VP9 alpha WebM, RGBA WebP frames or PNGs |
+| `scripts/plate.rs` | Places a cut-out subject on a key plate with headroom; picks the key colour the subject clashes with least |
+| `scripts/key.rs` | Keys a clip or still into stacked MP4, VP9 alpha WebM, RGBA WebP frames or PNGs |
 | `assets/alpha-video.js` | Plays a stacked-alpha MP4 with transparency on a canvas (WebGL), with `seek()` for scrubbing |
 
-Needs Python 3.9+, `pip install numpy opencv-python-headless pillow`, and ffmpeg on PATH.
+Needs Rust (`cargo`) and ffmpeg on PATH.
 
 ## Pipeline
 
@@ -24,7 +24,7 @@ Needs Python 3.9+, `pip install numpy opencv-python-headless pillow`, and ffmpeg
 2. **Make the plate.**
 
    ```bash
-   python3 scripts/plate.py subject.png plate.png --size 1350x1800 --fit 0.8
+   cargo run --release --bin plate -- subject.png plate.png --size 1350x1800 --fit 0.8
    ```
 
    The script reports, for magenta, green and blue, how much of the subject sits close to that key, and picks the cleanest. Magenta is usually right: almost nothing in skin, clothing, product or foliage is pure magenta. Green fails on plants and green products; blue fails on denim and sky. The subject is pasted with a hard edge on purpose: a soft edge pre-mixed with the plate colour teaches the model to draw a fringe.
@@ -40,10 +40,10 @@ Needs Python 3.9+, `pip install numpy opencv-python-headless pillow`, and ffmpeg
 4. **Key it.**
 
    ```bash
-   python3 scripts/key.py clip.mp4 --png check/ --frame-list 0,40,80,120   # inspect first
-   python3 scripts/key.py clip.mp4 --stacked hero-1080.mp4 --width 1080
-   python3 scripts/key.py clip.mp4 --stacked hero-720.mp4 --width 720      # phones
-   python3 scripts/key.py clip.mp4 --frames serve/lg --width 960 --start 0 --end 78
+   cargo run --release --bin key -- clip.mp4 --png check/ --frame-list 0,40,80,120   # inspect first
+   cargo run --release --bin key -- clip.mp4 --stacked hero-1080.mp4 --width 1080
+   cargo run --release --bin key -- clip.mp4 --stacked hero-720.mp4 --width 720      # phones
+   cargo run --release --bin key -- clip.mp4 --frames serve/lg --width 960 --start 0 --end 78
    ```
 
    `--png` prints the plate colour it measured in each frame. Models drift the plate: a pure magenta can come back pale pink (250, 178, 243) halfway through while the subject keeps its colours. That is why the key colour is measured per frame from the frame's own border instead of being set once. If the subject touches the top edge, the measurement breaks and the script says so.
@@ -57,7 +57,7 @@ Needs Python 3.9+, `pip install numpy opencv-python-headless pillow`, and ffmpeg
 | You see | Do |
 | --- | --- |
 | A thin outline that follows the subject | `--erode 1` (rarely 2). The model copied a fringe into the artwork |
-| Holes in light or shiny parts | That colour is too close to the key. Regenerate on a different key (`plate.py --key`) |
+| Holes in light or shiny parts | That colour is too close to the key. Regenerate on a different key (`plate --key`) |
 | Pink or green wash over the whole background | The plate gradient is stronger than usual; check the measured plate colours and raise `--solid` slightly |
 | A detail changed colour mid-clip (a cap turned green) | Model drift, not a keying fault. Recolour that hue in those frames, or regenerate |
 | Coloured line round the subject after compression | Already handled: colour under transparent pixels is the subject's own edge colour pushed outward, so chroma subsampling has nothing foreign to bleed in. `--fill` only sets the colour far from the subject |
@@ -82,7 +82,7 @@ requestAnimationFrame(frame);
 
 The player pauses itself off screen and uploads a texture only when the video has moved on. For scrubbing, create it with `{ loop: false, autoplay: false }` and call `hero.seek(seconds)` from your scroll handler.
 
-Serve videos from a server that answers HTTP Range requests (the `frame-capture` skill's serve.py does; `python3 -m http.server` does not), or seeking will not work.
+Serve videos from a server that answers HTTP Range requests (the `frame-capture` skill's `serve` binary does; `python3 -m http.server` does not), or seeking will not work.
 
 ## Reduced motion
 

@@ -11,24 +11,24 @@ Screen recorders capture whatever the GPU managed to draw in real time, so a hea
 
 | Script | What it does |
 | --- | --- |
-| `scripts/record.py` | Records a URL to MP4 with scroll keys, pointer motion and a ready condition |
-| `scripts/compare.py` | Stacks two clips (or sets them side by side) with labels and rounded panels |
-| `scripts/serve.py` | Static server that answers HTTP Range requests, so videos can seek |
+| `scripts/record.rs` | Records a URL to MP4 with scroll keys, pointer motion and a ready condition |
+| `scripts/compare.rs` | Stacks two clips (or sets them side by side) with labels and rounded panels |
+| `scripts/serve.rs` | Static server that answers HTTP Range requests, so videos can seek |
 
-Needs Python 3.9+, `pip install playwright pillow`, `python3 -m playwright install chromium webkit`, and ffmpeg on PATH.
+Needs Rust (`cargo`), Chromium or WebKit headless browser, and ffmpeg on PATH.
 
 ## Run
 
-1. **Serve the page with `scripts/serve.py`**, never `python3 -m http.server`. The built-in server ignores Range requests. The browser then cannot seek any video it serves (`video.seekable` is empty) and every recorded video holds its first frame. `record.py` warns when it sees this.
+1. **Serve the page with `scripts/serve.rs`**, never `python3 -m http.server`. The built-in server ignores Range requests. The browser then cannot seek any video it serves (`video.seekable` is empty) and every recorded video holds its first frame. `record` warns when it sees this.
 
    ```bash
-   python3 scripts/serve.py path/to/site --port 8000
+   cargo run --release --bin serve -- path/to/site --port 8000
    ```
 
 2. **Make a fast timing pass first.** Ten frames a second shows the choreography in seconds instead of minutes:
 
    ```bash
-   python3 scripts/record.py http://127.0.0.1:8000/ /tmp/check.mp4 --seconds 20 --fps 8 \
+   cargo run --release --bin record -- http://127.0.0.1:8000/ /tmp/check.mp4 --seconds 20 --fps 8 \
      --scroll "0:0 2.5:0 9:40% 12:40% 19:100%" --pointer drift
    ```
 
@@ -37,7 +37,7 @@ Needs Python 3.9+, `pip install playwright pillow`, `python3 -m playwright insta
 3. **Render the final.** `--size` is the CSS viewport and `--dpr` multiplies it. `--size 1920x1080 --dpr 1` makes 1080p; `--size 1280x720 --dpr 1.5` makes the same 1920x1080 with a larger layout. Output is H.264, CRF 16, yuv420p, BT.709 tags, faststart, no audio.
 
    ```bash
-   python3 scripts/record.py http://127.0.0.1:8000/ out.mp4 --seconds 20 --fps 60 \
+   cargo run --release --bin record -- http://127.0.0.1:8000/ out.mp4 --seconds 20 --fps 60 \
      --scroll "0:0 2.5:0 9:40% 12:40% 19:100%" --pointer drift --ready "window.__ready === true"
    ```
 
@@ -77,8 +77,8 @@ Needs Python 3.9+, `pip install playwright pillow`, `python3 -m playwright insta
 ## Comparisons
 
 ```bash
-python3 scripts/compare.py a.mp4 b.mp4 versus.mp4 --labels "Model A" "Model B"            # stacked, for phones
-python3 scripts/compare.py a.mp4 b.mp4 versus.mp4 --labels "Before" "After" --layout side   # side by side
+cargo run --release --bin compare -- a.mp4 b.mp4 versus.mp4 --labels "Model A" "Model B"            # stacked, for phones
+cargo run --release --bin compare -- a.mp4 b.mp4 versus.mp4 --labels "Before" "After" --layout side   # side by side
 ```
 
 A fair comparison holds everything equal except the thing being compared:
